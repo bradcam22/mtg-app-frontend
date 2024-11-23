@@ -65,7 +65,7 @@ export default function LineChart() {
                         text: 'Unique Cards Over Time',
                         font: {
                             size: 16,
-                            weight: '500'
+                            weight: 500
                         },
                         padding: 20
                     },
