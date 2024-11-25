@@ -1,5 +1,5 @@
 import CardWrapper from "@/components/dashboard/card";
-import BarChart from "@/components/dashboard/bar-chart";
+import CardBarChart from "@/components/dashboard/bar-chart";
 
 export default function Page() {
   return (
@@ -9,7 +9,7 @@ export default function Page() {
         <CardWrapper />
       </div>
       <div className="mt-6">
-        <BarChart />
+        <CardBarChart />
       </div>
     </main>
   )
