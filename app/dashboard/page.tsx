@@ -1,5 +1,5 @@
-import CardWrapper from "@/components/dashboard/card";
-import CardBarChart from "@/components/dashboard/bar-chart";
+import CardWrapper from "./_components/card";
+import CardBarChart from "./_components/bar-chart";
 
 export default function Page() {
   return (

@@ -11,7 +11,7 @@
     ],
 	"remoteUser": "node",
 	"forwardPorts": [3000],
-	"postCreateCommand": "pnpm install && pnpm add chart.js recharts",
+	"postCreateCommand": "pnpm install && pnpm add recharts",
 	"customizations": {
 		"vscode": {
 			"settings": {
