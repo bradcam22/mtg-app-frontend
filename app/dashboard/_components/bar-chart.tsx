@@ -9,12 +9,12 @@ interface TimeSeriesDataPoint {
     count: number;
 }
 
-export default function CardBarChart() {
+export default function CardBarChart({ color }: { color: string[] | null }) {
     const [data, setData] = useState<TimeSeriesDataPoint[]>([]);
 
     useEffect(() => {
-        fetchUniqueCardsPerYear().then(setData);
-    }, []);
+        fetchUniqueCardsPerYear(color).then(setData);
+    }, [color]);
 
     const formattedData = data.map(d => ({
         year: d.date.substring(0, 4),

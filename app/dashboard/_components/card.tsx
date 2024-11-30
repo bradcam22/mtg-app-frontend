@@ -1,13 +1,18 @@
+'use client';
+
+import { useEffect, useState } from "react";
 import { fetchUniqueCards } from "@/lib/data";
 
-export default async function CardWrapper() {
-    const [{ count: countUniqueCards }] = await fetchUniqueCards();
+export default function CardWrapper({ color }: { color: string[] | null }) {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        fetchUniqueCards(color).then(([{ count }]) => setCount(count));
+    }, [color]);
 
     return (
-        <>
-            <Card title="Unique Cards" value={countUniqueCards} />
-        </>
-    )
+        <Card title="Unique Cards" value={count} />
+    );
 }
 
 export function Card({ title, value }: { title: string, value: number }) {

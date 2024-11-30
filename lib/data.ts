@@ -12,12 +12,14 @@ export async function fetchUniqueCards(colors: ColorFilter = null) {
 
     const { data, error } = await supabase
         .rpc('get_unique_cards', {
-            color_filter: colors
+            color_filter: colors === null ? null :
+                colors.length === 0 ? '' :
+                    colors.join(', ')
         });
 
     if (error) throw error;
 
-    return [{ count: data[0].unique_cards ?? 0 }];
+    return [{ count: data[0]?.unique_cards ?? 0 }];
 }
 
 export async function fetchUniqueCardsPerYear(colors: ColorFilter = null) {
@@ -25,7 +27,9 @@ export async function fetchUniqueCardsPerYear(colors: ColorFilter = null) {
 
     const { data, error } = await supabase
         .rpc('get_unique_cards_per_year', {
-            color_filter: colors
+            color_filter: colors === null ? null :
+                colors.length === 0 ? '' :
+                    colors.join(', ')
         });
 
     if (error) throw error;
@@ -34,4 +38,17 @@ export async function fetchUniqueCardsPerYear(colors: ColorFilter = null) {
         date: row.release_year,
         count: row.unique_cards
     }));
+}
+
+export async function fetchDistinctColorIdentities(): Promise<string[][]> {
+    const supabase = createClient();
+
+    const { data, error } = await supabase.rpc('get_distinct_color_identities');
+
+    if (error) throw error;
+
+    return (data ?? []).map(item => {
+        if (!item.color_identity) return [];
+        return item.color_identity.split(',').map(color => color.trim());
+    });
 }
