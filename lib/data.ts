@@ -7,6 +7,10 @@ interface UniqueCardsPerYear {
     unique_cards: number;
 }
 
+interface ColorIdentityResponse {
+    color_identity: string;
+}
+
 export async function fetchUniqueCards(colors: ColorFilter = null) {
     const supabase = createClient();
 
@@ -47,7 +51,7 @@ export async function fetchDistinctColorIdentities(): Promise<string[][]> {
 
     if (error) throw error;
 
-    return (data ?? []).map(item => {
+    return (data ?? []).map((item: ColorIdentityResponse) => {
         if (!item.color_identity) return [];
         return item.color_identity.split(',').map(color => color.trim());
     });
