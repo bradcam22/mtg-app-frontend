@@ -22,10 +22,13 @@ interface CardBarChartProps {
 export default function CardBarChart({ cards, colorFilter }: CardBarChartProps) {
     const data = getUniqueCardsPerYear(cards, colorFilter);
     const maxCount = Math.max(...data.map(d => d.count));
-    const yMax = Math.ceil(maxCount * 1.1);
+    const yMax = maxCount <= 50 ? 50 :
+        maxCount <= 100 ? 100 :
+            Math.ceil(maxCount / 100) * 100;
+    const tickCount = 5;
     const ticks = Array.from(
-        { length: 6 },
-        (_, i) => Math.round(yMax * i / 5)
+        { length: tickCount + 1 },
+        (_, i) => Math.round(i * (yMax / tickCount))
     );
 
     return (
