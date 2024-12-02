@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/client";
+import { AtomicCard, getCachedCards, setCachedCards } from "./cards";
 
 type ColorFilter = string[] | null;
 
@@ -55,4 +56,25 @@ export async function fetchDistinctColorIdentities(): Promise<string[][]> {
         if (!item.color_identity) return [];
         return item.color_identity.split(',').map(color => color.trim());
     });
+}
+
+export async function fetchAllCards(): Promise<AtomicCard[]> {
+    // Try cache first
+    const cached = await getCachedCards();
+    if (cached) return cached;
+
+    // If no cache, fetch from Supabase
+    const supabase = createClient();
+    const { data, error } = await supabase
+        .from('v_atomic_cards')
+        .select('*');
+
+    if (error) throw error;
+    if (!data) throw new Error('No data returned from Supabase');
+
+    // Cache the results
+    const cards = data as AtomicCard[];
+    await setCachedCards(cards);
+
+    return cards;
 }

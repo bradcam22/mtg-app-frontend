@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { fetchUniqueCards } from "@/lib/data";
+import { AtomicCard, getUniqueCards } from "@/lib/cards";
 
-export default function CardWrapper({ color }: { color: string[] | null }) {
-    const [count, setCount] = useState(0);
+interface CardWrapperProps {
+    cards: AtomicCard[];
+    colorFilter: string[] | null;
+}
 
-    useEffect(() => {
-        fetchUniqueCards(color).then(([{ count }]) => setCount(count));
-    }, [color]);
+export default function CardWrapper({ cards, colorFilter }: CardWrapperProps) {
+    const count = getUniqueCards(cards, colorFilter);
 
     return (
         <Card title="Unique Cards" value={count} />

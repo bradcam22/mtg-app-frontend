@@ -1,19 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { fetchDistinctColorIdentities } from '@/lib/data';
+import { AtomicCard, getDistinctColorIdentities } from '@/lib/cards';
 
 interface ColorFilterProps {
+    cards: AtomicCard[];
     selectedColor: string[] | null;
     onChange: (color: string[] | null) => void;
 }
 
-export function ColorFilter({ selectedColor, onChange }: ColorFilterProps) {
-    const [colors, setColors] = useState<string[][]>([]);
-
-    useEffect(() => {
-        fetchDistinctColorIdentities().then(setColors);
-    }, []);
+export function ColorFilter({ cards, selectedColor, onChange }: ColorFilterProps) {
+    const colorIdentities = getDistinctColorIdentities(cards);
 
     return (
         <select
@@ -22,7 +18,7 @@ export function ColorFilter({ selectedColor, onChange }: ColorFilterProps) {
             className="rounded-md border border-gray-200 px-3 py-2 text-sm"
         >
             <option key="all" value="">All Colors</option>
-            {colors.map(colorIdentity => {
+            {colorIdentities.map(colorIdentity => {
                 const key = colorIdentity.join(',') || 'colorless';
                 const label = colorIdentity.length ? colorIdentity.join(', ') : 'Colorless';
                 return (

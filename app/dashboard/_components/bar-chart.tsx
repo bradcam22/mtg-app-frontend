@@ -1,92 +1,95 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { fetchUniqueCardsPerYear } from '@/lib/data';
+import { AtomicCard, getUniqueCardsPerYear } from '@/lib/cards';
 
-interface TimeSeriesDataPoint {
-    date: string;
-    count: number;
-}
-
-export default function CardBarChart({ color }: { color: string[] | null }) {
-    const [data, setData] = useState<TimeSeriesDataPoint[]>([]);
-
-    useEffect(() => {
-        fetchUniqueCardsPerYear(color).then(setData);
-    }, [color]);
-
-    const formattedData = data.map(d => ({
-        year: d.date.substring(0, 4),
-        count: d.count
-    }));
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload || !payload.length) return null;
 
     return (
-        <div className="w-full h-[400px] bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">How many new cards are printed per year?</h2>
-            <div className="flex-1">
-                <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                        data={formattedData}
-                        margin={{ top: 25, right: 25, left: 25, bottom: 25 }}
-                    >
-                        <CartesianGrid
-                            strokeDasharray="3 3"
-                            vertical={false}
-                            stroke="rgba(0, 0, 0, 0.08)"
-                        />
-                        <XAxis
-                            dataKey="year"
-                            angle={-45}
-                            textAnchor="end"
-                            tick={{ fontSize: 12, fill: '#374151' }}
-                            tickMargin={10}
-                            interval={1}
-                            minTickGap={15}
-                            height={25}
-                        />
-                        <YAxis
-                            tick={{ fontSize: 12, fill: '#374151' }}
-                            tickFormatter={(value) => value.toLocaleString()}
-                            width={25}
-                            tickCount={6}
-                        />
-                        <Tooltip
-                            contentStyle={{
-                                backgroundColor: '#ffffff',
-                                border: '1px solid #E5E7EB',
-                                borderRadius: '6px',
-                                padding: '12px 16px',
-                                fontSize: '13px',
-                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                color: '#111827'
-                            }}
-                            formatter={(value: number) => [
-                                `${value.toLocaleString()} cards`,
-                                'New Cards'
-                            ]}
-                            labelFormatter={(year) => (
-                                `Year: ${year}`
-                            )}
-                            labelStyle={{
-                                fontSize: '13px',
-                                fontWeight: 600,
-                                color: '#111827',
-                                marginBottom: '4px'
-                            }}
-                        />
-                        <Bar
-                            dataKey="count"
-                            fill="rgba(99, 102, 241, 0.85)"
-                            stroke="rgb(79, 82, 221)"
-                            strokeWidth={1}
-                            radius={[4, 4, 0, 0]}
-                            maxBarSize={35}
-                            animationDuration={500}
-                        />
-                    </BarChart>
-                </ResponsiveContainer>
+        <div className="bg-background border border-border rounded-md shadow-md p-2">
+            <p className="text-sm font-medium">Year: {new Date(label).getFullYear()}</p>
+            <p className="text-sm">Cards: {payload[0].value.toLocaleString()}</p>
+        </div>
+    );
+};
+
+interface CardBarChartProps {
+    cards: AtomicCard[];
+    colorFilter: string[] | null;
+}
+
+export default function CardBarChart({ cards, colorFilter }: CardBarChartProps) {
+    const data = getUniqueCardsPerYear(cards, colorFilter);
+    const maxCount = Math.max(...data.map(d => d.count));
+    const yMax = Math.ceil(maxCount * 1.1);
+    const ticks = Array.from(
+        { length: 6 },
+        (_, i) => Math.round(yMax * i / 5)
+    );
+
+    return (
+        <div className="bg-card border border-border rounded-lg p-5 h-[420px] w-full">
+            <div className="text-xl font-medium mb-3">
+                How many new cards are printed per year?
             </div>
+            <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                    data={data}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+                    barGap={0}
+                    barCategoryGap="15%"
+                >
+                    <CartesianGrid
+                        strokeDasharray="3 3"
+                        vertical={false}
+                        opacity={0.4}
+                    />
+                    <XAxis
+                        dataKey="date"
+                        tickFormatter={(value) => new Date(value).getFullYear().toString()}
+                        interval={4}
+                        tick={(props) => {
+                            const { x, y, payload } = props;
+                            return (
+                                <g transform={`translate(${x},${y})`}>
+                                    <text
+                                        x={0}
+                                        y={0}
+                                        dy={16}
+                                        textAnchor="middle"
+                                        fill="currentColor"
+                                        fontSize={12}
+                                    >
+                                        {new Date(payload.value).getFullYear()}
+                                    </text>
+                                </g>
+                            );
+                        }}
+                        axisLine={{ strokeWidth: 1 }}
+                        tickLine={{ strokeWidth: 1 }}
+                    />
+                    <YAxis
+                        allowDecimals={false}
+                        tick={{ fontSize: 12 }}
+                        axisLine={{ strokeWidth: 1 }}
+                        tickLine={{ strokeWidth: 1 }}
+                        domain={[0, yMax]}
+                        ticks={ticks}
+                        width={35}
+                    />
+                    <Tooltip
+                        content={<CustomTooltip />}
+                        cursor={{ fill: 'rgba(136, 132, 216, 0.1)' }}
+                    />
+                    <Bar
+                        dataKey="count"
+                        fill="#8884d8"
+                        radius={[2, 2, 0, 0]}
+                        maxBarSize={50}
+                    />
+                </BarChart>
+            </ResponsiveContainer>
         </div>
     );
 }
